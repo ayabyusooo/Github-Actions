@@ -1,0 +1,41 @@
+name: Github Posts
+
+on:
+  push:
+    branches:
+      - main  # Adjust to your main branch name
+  schedule:
+    - cron: '0 0 * * *'  # This runs the job daily at midnight, adjust as needed
+
+jobs:
+  build-on-ubuntu:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+    - name: Build on Ubuntu
+      run: |
+        echo "Building on Ubuntu"
+        # Add your build commands here
+
+  test-on-macos:
+    runs-on: macos-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+    - name: Test on macOS
+      run: |
+        echo "Testing on macOS"
+        # Add your test commands here
+
+  deploy-on-windows:
+    runs-on: windows-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+    - name: Deploy on Windows
+      run: |
+        echo "Deploying on Windows"
+        # Add your deployment commands here
+
+    
