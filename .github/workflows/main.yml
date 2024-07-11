@@ -1,4 +1,4 @@
-name: Github Posts
+name: Post to WordPress
 
 on:
   push:
@@ -37,5 +37,32 @@ jobs:
       run: |
         echo "Deploying on Windows"
         # Add your deployment commands here
+        
+name: Clone external repository
+      run: git clone https://github.com/energicryptocurrency/Energi.git external-repo
 
+    - name: Get OAuth token
+      id: oauth
+      run: |
+        response=$(curl -X POST "$WP_URL/oauth/token" -d "grant_type=password&client_id=$WP_CLIENT_ID&client_secret=$WP_CLIENT_SECRET&username=$WP_USERNAME&password=$WP_PASSWORD")
+        token=$(echo $response | jq -r .access_token)
+        echo "::set-output name=token::$token"
+      env:
+        WP_CLIENT_ID: ${{ secrets.WP_CLIENT_ID }}
+        WP_CLIENT_SECRET: ${{ secrets.WP_CLIENT_SECRET }}
+        WP_USERNAME: ${{ secrets.WP_USERNAME }}
+        WP_PASSWORD: ${{ secrets.WP_PASSWORD }}
+        WP_URL: ${{ secrets.WP_URL }}
+
+    - name: Post to WordPress
+      env:
+        WP_URL: ${{ secrets.WP_URL }}
+        OAUTH_TOKEN: ${{ steps.oauth.outputs.token }}
+      run: |
+        title=$(head -n 1 external-repo/README.md)
+        content=$(tail -n +2 external-repo/README.md)
+        curl -X POST -H "Content-Type: application/json" \
+        -H "Authorization: Bearer $OAUTH_TOKEN" \
+        -d "{\"title\":\"$title\",\"content\":\"$content\",\"status\":\"publish\"}" \
+        $WP_URL/wp-json/wp/v2/posts
     
